@@ -22,12 +22,14 @@ class Worker(multiprocessing.Process):
 
     def __init__(
             self,
+            ipv4,
             worker_id,
             cycles,
             queue_from_boss,
             queue_to_boss,
     ):
         super(Worker, self).__init__()
+        self.ipv4 = ipv4
         self.queue_from_boss = queue_from_boss
         self.queue_to_boss = queue_to_boss
         self.cycles = cycles

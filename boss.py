@@ -29,7 +29,8 @@ class Boss(object):
     """
 
 
-    def __init__(self):
+    def __init__(self, ipv4):
+        self.ipv4 = ipv4
 
         # set up multiprocessing logger
         multiprocessing.log_to_stderr()
@@ -43,8 +44,10 @@ class Boss(object):
         self.log.info('Start Log')
 
         self.worker_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+        
         # List of of Workers
         self.workers = []
+
         # Store results for all workers 
         self.worker_results = {} 
 
@@ -63,6 +66,7 @@ class Boss(object):
         for worker_id in self.worker_ids:
             # Each worker runs one command
             w = Worker(
+                self.ipv4,
                 worker_id,
                 queue_to_boss=self.queue,
                 queue_from_boss=multiprocessing.Queue(),
@@ -198,6 +202,13 @@ class Boss(object):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--ipv4', '-i',
+        required=True,
+        help='netbooter ipv4 address'
+    )
+    args = parser.parse_args()
 
-    boss = Boss()
+    boss = Boss(args.ipv4)
     boss.main()
