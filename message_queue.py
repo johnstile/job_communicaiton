@@ -19,4 +19,13 @@ class QueueMessage(object):
     def handle(self, receiver):
         raise NotImplementedError
 
+class StatusMessage(QueueMessage):
+    """Worker<->Boss status messages"""
+    def __init__(self, worker_id, data):
+        self.worker_id = worker_id
+        self.data = data
+
+    def handle(self, receiver):
+        # Promissed method implemented in receiver
+        receiver.on_status(self.worker_id, self.data)
 
