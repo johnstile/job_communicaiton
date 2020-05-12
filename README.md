@@ -4,7 +4,7 @@ Implement communicaiton between parent and subprocess
 ## Message queue  
 ```.
 Object based Message Queue system
-Useing a class to pulls queue processing logic out of the middle of boss/worker code.
+Use a class to pulls queue processing logic out of the middle of boss/worker code.
 
 It makes it easier to add a new message type.
 It is better than string parsing (to figure out message types).
