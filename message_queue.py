@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Object based Message Queue system
+Object-based Message Queue system
 This class pulls the queue processing logic out of the middle of boss/worker code.
 
 It makes it easier to add a new message type.
@@ -23,7 +23,7 @@ class QueueMessage(object):
 class QuitMessage(QueueMessage):
     """Worker tells Boss it is ending"""
     def __init__(self, sender_id, this_exit_code):
-        self.worker_id = sender_id 
+        self.sender_id = sender_id 
         self.this_exit_code = this_exit_code
 
     def handle(self, receiver):
