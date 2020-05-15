@@ -112,7 +112,7 @@ class Boss(object):
                 # Send the message to start testing
                 for worker in self.workers:
                     worker.queue_from_boss.put(message_queue.StatusMessage('BOSS', {'BeginTest': True}))
-                self.ready_counter = False
+                self.ready_counter = 0
 
             if self.quit_counter == len(self.workers):
                 self.log.info("All Workers quit, end program")
@@ -138,8 +138,8 @@ class Boss(object):
             self.log.info("Worker ID:{} is Ready".format(worker_id))
             self.ready_counter += 1
 
-        if 'COMPLETE' in data and data['COMPLETE']:
-            self.log.info("Worker ID:{} is COMPLETE".format(worker_id))
+        if 'Complete' in data and data['Complete']:
+            self.log.info("Worker ID:{} is Complete".format(worker_id))
 
     def on_quit(self, worker_id, exit_code):
         self.log.info(
