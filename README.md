@@ -5,18 +5,29 @@
 Implement communication between a Boss and Worker subprocesses 
 ```
 
-## About  
+## This is a Message Queue Demonstration
 ```.
-This is a toy app that excercises a Message Queue system
+This is an object-based Message Queue system
 
-Run boss.py, with an IPv4 address argument (used in ping later).
+It seperates message processing logic from the boss and worker code.
+
+It makes it easier to add a new message type.
+It is better than string parsing (to figure out message types).
+It uses meaningful variable names (instead of list indices, for multiple workers)
+
+The MessageQueue subclasses defines the handler name and message type
+The READER implements the handler
+The WRITER writes the proper message for the subclasses
+```
+
+## Program Flow
+```.
 The boss starts a bunch of workers
 The workers tell the boss they are Ready via the StatusMessage queue.
 The boss tells the workers to BeginTest via the StatusMessage, once all workers are Ready.
-The workers sned status back to the boss via the LogMessage queue. 
-Finally the workers send a quit message to the boss.
-When the boss has heard from each worker, they are told to start doing work.
-The workers report status back to the boss
+The workers send status back to the boss via the LogMessage queue. 
+Finally the workers send a QuitMessage to the boss.
+When the boss has heard from each worker, the boss shuts down the workers and quits.
 ```
 
 ## Setup 
@@ -36,16 +47,3 @@ The workers report status back to the boss
   ./boss.py -i 192.168.0.1
 ```
 
-## Message queue  
-```.
-This is an Object-based Message Queue system
-seperating message processing logic out of the boss and worker code.
-
-It makes it easier to add a new message type.
-It is better than string parsing (to figure out message types).
-It uses meaningful variable names (instead of list indices, for multiple workers)
-
-The MessageQueue subclasses defines the handler name and message type
-The READER implements the handler
-The WRITER writes the proper message for the subclasses
-```

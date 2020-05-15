@@ -142,7 +142,7 @@ class Worker(multiprocessing.Process):
                 )
                 try:
                     self.log.info("ipv4:{}".format(self.ipv4))
-                    stdout_value, elapsed_time = ping(self.ipv4, 4)
+                    stdout_value, elapsed_time = ping(self.ipv4, 4, timeout=0.2)
                     self.log.info("stdout_value: {}".format(stdout_value))
 
                     if stdout_value != 0:
@@ -151,6 +151,11 @@ class Worker(multiprocessing.Process):
 
                 except retrying.RetryError as e:
                     self.log.critical("Retry FAILED. Iteration:{:>3}, Exception:{}".format(iteration, str(e)))
+                    message_queue.LogMessage(
+                        self.worker_id,
+                        "ERROR",
+                        "Retry FAILED. Iteration:{:>3}, Exception:{}".format(iteration, str(e))
+                    )
                     self.error_count += 1
 
             # End For loop

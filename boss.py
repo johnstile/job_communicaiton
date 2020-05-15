@@ -130,21 +130,21 @@ class Boss(object):
 
 
     def on_status(self, worker_id, data):
-        """MessageQueue: Counts the number of workers that are ready
+        """StatusMessage: Counts the number of workers that are ready
         """
-        self.log.debug("worker_id:{}, status: {}".format(worker_id, data))
+        self.log.debug("StatusMessage: worker_id:{}, status: {}".format(worker_id, data))
 
         if 'Ready' in data and data['Ready']:
-            self.log.info("Worker ID:{} is Ready".format(worker_id))
+            self.log.info("StatusMessage: Worker ID:{} is Ready".format(worker_id))
             self.ready_counter += 1
 
         if 'Complete' in data and data['Complete']:
-            self.log.info("Worker ID:{} is Complete".format(worker_id))
+            self.log.info("StatusMessage: Worker ID:{} is Complete".format(worker_id))
 
     def on_quit(self, worker_id, exit_code):
         self.log.info(
             (
-                "Quit received from {}, error_count: {}"
+                "QuitMessage received from {}, error_count: {}"
             ).format(
                 worker_id,
                 exit_code
@@ -166,7 +166,7 @@ class Boss(object):
     def on_log(self, worker_id, log_level, msg):
         """MessageQueue: Log some message
         """
-        self.log.info("[{}][{}] - {}".format(worker_id, log_level, msg))
+        self.log.info("LogMessage: [{}][{}] - {}".format(worker_id, log_level, msg))
 
 
     def clean_up(self, worker):
