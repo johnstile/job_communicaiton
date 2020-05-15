@@ -8,9 +8,11 @@ Worker for simultaneous opteration, communicates with the boss
 import multiprocessing
 import logging
 import queue
+import retrying
 
 # Our modules
 import message_queue
+from test_ping import ping
 
 __author__ = 'John Stile'
 
@@ -65,11 +67,17 @@ class Worker(multiprocessing.Process):
         #
         # Tell boss Worker is ready
         #
-        self.queue_to_boss.put(message_queue.StatusMessage(self.worker_id, {'ready': True}))
+        self.log.info("Send Ready o Boss")
+        self.queue_to_boss.put(message_queue.StatusMessage(self.worker_id, {'Ready': True}))
         #
         # Poll messages from Boss to start test
         #
         self.process_queue()
+        #
+        # Tell boss Worker is complete 
+        #
+        self.log.info("Send Complete to Boss")
+        self.queue_to_boss.put(message_queue.StatusMessage(self.worker_id, {'Complete': True}))
         #
         # send quit message
         #
@@ -112,26 +120,42 @@ class Worker(multiprocessing.Process):
         If command fails, terminate test"""
         self.log.info('Run Test')
 
-        # This is how many times we run the command
-        for iteration in range(1, self.cycles + 1):
-            self.log.info(
-                (
-                    "=====Worker: {:>2}, Iteration:{:>3}, Error Count:{:>3}===="
-                ).format(
-                    self.worker_id,
-                    iteration,
-                    self.error_count
+        try:
+            # This is how many times we run the command
+            for iteration in range(1, self.cycles + 1):
+                self.log.info(
+                    (
+                        "=====Worker: {:>2}, Iteration:{:>3}, Error Count:{:>3}===="
+                    ).format(
+                        self.worker_id,
+                        iteration,
+                        self.error_count
+                    )
                 )
-            )
-            self.log.info('Run Command')
-            self.queue_to_boss.put(
-                message_queue.LogMessage(
-                    self.worker_id,
-                    "INFO",
-                    "run{}".format(iteration)
+                self.log.info('Run Command')
+                self.queue_to_boss.put(
+                    message_queue.LogMessage(
+                        self.worker_id,
+                        "INFO",
+                        "run{: }".format(iteration)
+                    )
                 )
-            )
+                try:
+                    self.log.info("ipv4:{}".format(self.ipv4))
+                    stdout_value, elapsed_time = ping(self.ipv4, 4)
+                    self.log.info("stdout_value: {}".format(stdout_value))
 
-        # End For loop
-        self.queue_to_boss.put(message_queue.QuitMessage(self.worker_id, self.error_count))
+                    if stdout_value != 0:
+                        self.log.critical("Failed")
+                        self.error_count += 1
 
+                except retrying.RetryError as e:
+                    self.log.critical("Retry FAILED. Iteration:{:>3}, Exception:{}".format(iteration, str(e)))
+                    self.error_count += 1
+
+            # End For loop
+            self.queue_to_boss.put(message_queue.QuitMessage(self.worker_id, self.error_count))
+
+        except Exception as e:
+            self.log.exception("Exception occurred: {}".format(e))
+            raise

@@ -133,8 +133,13 @@ class Boss(object):
         """MessageQueue: Counts the number of workers that are ready
         """
         self.log.debug("worker_id:{}, status: {}".format(worker_id, data))
-        self.ready_counter += 1
 
+        if 'Ready' in data and data['Ready']:
+            self.log.info("Worker ID:{} is Ready".format(worker_id))
+            self.ready_counter += 1
+
+        if 'COMPLETE' in data and data['COMPLETE']:
+            self.log.info("Worker ID:{} is COMPLETE".format(worker_id))
 
     def on_quit(self, worker_id, exit_code):
         self.log.info(
